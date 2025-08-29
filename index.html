@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#121212" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>DJ's Drum-Kit</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- TF.js + Coco-SSD -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.16.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>DJ's Drum-Kit</h1>
+    <nav>
+      <button class="tabBtn" data-tab="play">Play</button>
+      <button class="tabBtn" data-tab="settings">Settings</button>
+      <button class="tabBtn" data-tab="demo">Demo</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Camera Gate -->
+    <section id="gate" class="blocker">
+      <p><b>Camera needed.</b> We detect objects in your camera and map them to drums. Video stays on your device.</p>
+      <button id="enableBtn">Enable camera & start</button>
+      <small class="note">If you denied the camera before, allow it in your browser settings, then press the button.</small>
+    </section>
+
+    <!-- PLAY TAB -->
+    <section id="tab-play" class="tab hidden">
+      <div class="app">
+        <div class="stage" id="stage">
+          <video id="video" autoplay playsinline muted></video>
+          <canvas id="draw"></canvas>
+          <div id="pads"></div>
+        </div>
+
+        <aside class="panel">
+          <div class="row">
+            <label class="inline">BPM <input type="number" id="bpm" min="40" max="200" value="96"></label>
+            <label class="inline"><input type="checkbox" id="showBoxes"> Show detections</label>
+          </div>
+
+          <div class="box">
+            <h3>Detected objects</h3>
+            <div id="detectedList" class="list"></div>
+          </div>
+
+          <div class="box">
+            <h3>Pads</h3>
+            <div id="padList" class="list"></div>
+            <div class="row">
+              <button id="clearPads">Clear pads</button>
+              <button id="saveProject">Save</button>
+              <button id="loadProject">Load</button>
+            </div>
+            <div class="row">
+              <button id="exportProject">Download project</button>
+              <input type="file" id="importProject" accept="application/json" class="hidden">
+              <button id="importBtn">Upload project</button>
+            </div>
+            <div class="row">
+              <button id="shareProject">Send (share)</button>
+              <button id="deleteProject">Delete saved</button>
+            </div>
+          </div>
+
+          <div class="box">
+            <h3>Recording</h3>
+            <div class="row">
+              <button id="recBtn">● Record</button>
+              <button id="stopBtn" disabled>■ Stop</button>
+            </div>
+            <a id="downloadLink" class="hidden" download="djs-drumkit-recording.webm">Download recording</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section id="tab-settings" class="tab hidden">
+      <div class="settings">
+        <div class="box">
+          <h3>Freemium</h3>
+          <p>Free sounds are always available. Pro sounds unlock locally by code or license file.</p>
+          <div class="row">
+            <input id="unlockCode" class="input" placeholder="Enter unlock code" />
+            <button id="unlockBtn">Unlock Pro</button>
+          </div>
+          <div class="row">
+            <input type="file" id="licenseFile" accept="application/json" />
+          </div>
+          <p id="proStatus" class="subtle">Pro: locked</p>
+        </div>
+
+        <div class="box">
+          <h3>Social API Keys (stored on this device only)</h3>
+          <div class="grid2">
+            <label>Instagram Token <input id="keyInstagram" class="input" placeholder="paste token" /></label>
+            <label>TikTok Key <input id="keyTikTok" class="input" placeholder="paste key" /></label>
+            <label>YouTube API Key <input id="keyYouTube" class="input" placeholder="paste key" /></label>
+            <label>Facebook Token <input id="keyFacebook" class="input" placeholder="paste token" /></label>
+            <label>X (Twitter) Token <input id="keyX" class="input" placeholder="paste token" /></label>
+          </div>
+          <div class="row">
+            <button id="saveKeys">Save Keys (local)</button>
+            <span id="keysSaved" class="subtle"></span>
+          </div>
+          <p class="note">We do not send keys anywhere. They are saved in your browser storage. Integrations are off until you add keys here.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEMO TAB -->
+    <section id="tab-demo" class="tab hidden">
+      <div class="box">
+        <h3>Demo video (optional)</h3>
+        <p>Load a local video to test object detection without the camera.</p>
+        <div class="row">
+          <input type="file" id="demoVideoFile" accept="video/*" />
+          <button id="useDemoBtn">Use this video in Play tab</button>
+        </div>
+        <p class="note">Your earlier requirement keeps the camera mandatory for normal play. This demo is optional.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Privacy: camera stays on your device. Microphone is used only while you record.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
